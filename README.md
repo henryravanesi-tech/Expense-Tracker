@@ -1,5 +1,5 @@
 # Expense Tracker
-A simple personal expense tracker built with FastAPI and an interactive command-line client. The API supports adding, viewing, filtering, updating, replacing, and deleting expenses. The terminal client lets users interact with the API without manually writing HTTP requests.
+A simple personal expense tracker built with FastAPI and an interactive client. The API supports adding, viewing, filtering, updating, replacing, and deleting expenses. The terminal client lets users interact with the API without manually writing HTTP requests.
 
 ## Features
 
@@ -12,8 +12,8 @@ A simple personal expense tracker built with FastAPI and an interactive command-
 
 ## Tech Stack
 
-- **Python** – core language
-- **FastAPI** – the web framework powering the API
+- **Python** – main language
+- **FastAPI** – the web framework for the API
 - **Uvicorn** – the server that runs the API
 - **Pydantic** – validates the expense data
 - **Requests** – used by the terminal client to call the API
@@ -62,7 +62,7 @@ The project has two parts: the API server and the terminal client. Start the ser
 uvicorn main:app --reload
 ```
 
-The API runs at `http://127.0.0.1:8000`. You can also open `http://127.0.0.1:8000/docs` in your browser to see FastAPI's interactive documentation.
+The API runs at `http://127.0.0.1:8000`. You can also open `http://127.0.0.1:8000/docs` in your browser to see FastAPI's documentation.
 
 **2. Start the terminal client:**
 
@@ -76,7 +76,7 @@ Then follow the on-screen menu to add, view, update, and delete expenses.
 
 This is V1 of the project. Expenses are stored in memory, so the data resets when the server restarts.
 
-The goal of V1 was to practice FastAPI routes, CRUD operations, JSON request/response handling, status codes, and building a terminal client that communicates with the API through HTTP requests.
+The goal of V1 was to practice FastAPI routes, JSON request/response, status codes, and building a terminal client that communicates with the API through HTTP requests.
 
 ## Plans for V2
 
