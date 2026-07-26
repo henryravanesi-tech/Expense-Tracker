@@ -1,17 +1,40 @@
 import requests
-from datetime import date
+from client_helpers import get_expense_id, get_category, get_name, get_amount, get_date, get_min_amount, get_max_amount, get_start_date, get_end_date
 
 base_url = "http://127.0.0.1:8000"
 
+def print_expense(expense):
+    print(f"[{expense['id']}] {expense['name']} - ${expense['amount']:.2f} - {expense['category']} - {expense['date']}")
+
+def print_expenses(expenses):
+    if len(expenses) == 0:
+        print("No expenses found.")
+        return 
+    else:
+        print(f"Found {len(expenses)} expenses.")
+        for expense in expenses:
+            print(f"[{expense['id']}] {expense['name']} - ${expense['amount']:.2f} - {expense['category']} - {expense['date']}")
+
+def print_update(expense):
+    print("Expense updated successfully.")
+    print(f"[{expense['id']}] {expense['name']} - ${expense['amount']:.2f} - {expense['category']} - {expense['date']}")
+
+def print_added(expense):
+    print("Expense added successfully.")
+    print(f"[{expense['id']}] {expense['name']} - ${expense['amount']:.2f} - {expense['category']} - {expense['date']}")
+
+def print_deleted(expense):
+    print("Expense deleted successfully.")
+    print(f"[{expense['id']}] {expense['name']} - ${expense['amount']:.2f} - {expense['category']} - {expense['date']}")
 def menu() -> int:
     
-    print("1. Check api status")
+    print("1. Check API status")
     print("2. View all expenses")
-    print("3. Search expenses by category")
-    print("4. Get one expense by ID")
+    print("3. Search expenses by filter")
+    print("4. Get an expense by ID")
     print("5. Add a new expense")
     print("6. Modify/update a part of an expense")
-    print("7. Fully Replace a specific expense")
+    print("7. Fully replace a specific expense")
     print("8. Delete a specific expense")
     print("9. Exit")
     
@@ -38,110 +61,106 @@ def get_all_expenses() -> None:
     response = requests.get(base_url + "/expenses")
     expenses = response.json()
     
-    print("Status code: ", response.status_code)
-    print("Response: ", expenses)
+    print_expenses(expenses)
 
 
-def get_cat_expenses() -> None:
+def search_expenses() -> None:
     cont = True 
+    params = {}
+    
     while cont:
-        print("Please enter a category to search by: ", end='')
-        cat = input().strip()
-        if cat:
-            cont = False
-        else:
-            print("No category entered, please try again.")
+        try:
+            print("Select filters to apply, continue will send through the request.")
+            print("1. name")
+            print("2. amount")
+            print("3. category")
+            print("4. date")
+            print("5. continue")
+            choice = int(input().strip())
+            if choice >= 1 and choice <= 5:
+                if choice == 1:
+                    params["name"] = get_name()
+            
+                elif choice == 2:
+                    amount_l = True 
+                    while amount_l:
+                        params["min_amount"] = get_min_amount()
+                        params["max_amount"] = get_max_amount()
+                        if params["min_amount"] <= params["max_amount"]:
+                            amount_l = False
+                        else:
+                            print("Minimum amount can't be greater than maximum amount, please try again.")
 
-    response = requests.get(base_url + "/expenses", params={"category": cat})
-    cat_expenses = response.json()
-    print("Status code: ", response.status_code)
-    print("Response: ", cat_expenses)
+                    
+
+                elif choice == 3:
+                    params["category"] = get_category()
+
+                elif choice == 4:
+                    date_l = True 
+                    while date_l:
+                        params["start_date"] = get_start_date()
+                        params["end_date"] = get_end_date()
+                        if params["start_date"] <= params["end_date"]:
+                            date_l = False
+                        else:
+                            print("start date can't be after end date, please try again.")
+
+                elif choice == 5:
+                    cont = False
+
+            else:
+                raise ValueError
+                
+        except ValueError:
+                print("Invalid input, please try again.")        
+    
+
+    response = requests.get(base_url + "/expenses", params=params)
+    search_res = response.json()
+    print_expenses(search_res)
 
 
 def get_specific_expense() -> None:
-    cont = True 
-    while cont:
-        try:
-            print("Please enter an expense_id: ", end='')
-            expense_id = int(input().strip())
-            cont = False
-        except ValueError:
-            print("You did not enter a integer, please try again.")
+    
+    expense_id = get_expense_id()
     
     response = requests.get(base_url + f"/expenses/{expense_id}")
     expense = response.json()
 
-    print("Status code: ", response.status_code)
-    print("Response: ", expense)
+    if response.status_code >= 400:
+        print("Error:", expense["detail"])
+        return 
+
+    print_expense(expense)
 
 
 def add_new_expense() -> None:
     new_expense = {}
-    name_l = True
-    amount_l = True 
-    category_l = True 
-    date_l = True 
 
-    while name_l:
-        print("Please enter a name for the expense: ", end='')
-        name = input().strip()
-        if name:
-            new_expense["name"] = name
-            name_l = False
-        else:
-            print("No name entered, please try again.")
+    new_expense["name"] = get_name()
 
-    while amount_l:
-        print("Please enter an amount for the expense: ", end='')
-        try:
-            amount = float(input().strip())
-            if amount <=0:
-                raise ValueError
-            new_expense["amount"] = amount
-            amount_l = False
-        except ValueError:
-            print("You did not enter a positive number, please try again.")
-        
-    while category_l:
-        print("Please enter a category for the expense: ", end='')
-        category = input().strip()
-        if category:
-            new_expense["category"] = category
-            category_l = False
-        else: 
-            print("No category entered, please try again.")
+    new_expense["amount"] = get_amount()
 
-    while date_l:
-        print("Please enter a date for the expense (YYYY-MM-DD): ", end='')
-        try:
-            date_entered = date.fromisoformat(input().strip())
-            date_text = date.isoformat(date_entered)
-            new_expense["date"] = date_text
-            date_l = False
-        except ValueError:
-            print("You did not enter a valid date, please try again.")
+    new_expense["category"] = get_category()
+
+    new_expense["date"] = get_date()
 
     response = requests.post(base_url + "/expenses", json=new_expense)
-    print("Status code: ", response.status_code)
-    print("Response: ", response.json())
-
+    added = response.json()
+    if response.status_code >= 400:
+        print("Error:", added["detail"])
+        return
+    print_added(added["expense"])
     
+
 def update_existing_expense() -> None:
     update = {}
     cont = True
-    int_cont = True 
 
+    expense_id = get_expense_id()
 
-    while int_cont:
-        try:
-            print("Please enter the expense id you wish to update: ", end='')
-            expense_id = int(input().strip())
-            int_cont = False
-        except ValueError:
-            print("You did not enter a integer, please try again.")
-
-    print("Please select what categories you wish to update, continue will send through the request.")
-    
+    print("Select which fields to update, continue will send through the request.")
     while cont:
         try:
             print("1. name")
@@ -153,136 +172,73 @@ def update_existing_expense() -> None:
             choice = int(input().strip())
 
             if choice >= 1 and choice <= 5:
-                name_l = True
-                amount_l = True 
-                category_l = True 
-                date_l = True 
                 if choice == 1:
-                  while name_l:
-                    print("Please enter a name for the expense: ", end='')
-                    name = input().strip()
-                    if name:
-                        update["name"] = name
-                        name_l = False
-                    else:
-                        print("No name entered, please try again.")
+                    update["name"] = get_name()
         
                 elif choice == 2:
-                    while amount_l:
-                        print("Please enter an amount for the expense: ", end='')
-                        try:
-                            amount = float(input().strip())
-                            if amount <=0:
-                                raise ValueError
-                            update["amount"] = amount
-                            amount_l = False
-                        except ValueError:
-                            print("You did not enter a positive number, please try again.")
+                    update["amount"] = get_amount()
+
                 elif choice == 3:
-                    while category_l:
-                        print("Please enter a category for the expense: ", end='')
-                        category = input().strip()
-                        if category:
-                            update["category"] = category
-                            category_l = False
-                        else: 
-                            print("No category entered, please try again.")
+                    update["category"] = get_category()
+
                 elif choice == 4:
-                    while date_l:
-                        print("Please enter a date for the expense (YYYY-MM-DD): ", end='')
-                        try:
-                            date_entered = date.fromisoformat(input().strip())
-                            date_text = date.isoformat(date_entered)
-                            update["date"] = date_text
-                            date_l = False
-                        except ValueError:
-                            print("You did not enter a valid date, please try again.")
+                    update["date"] = get_date()
+
                 elif choice == 5:
                     cont = False
+
             else:
                 raise ValueError
+            
         except ValueError:
             print("Invalid input, please try again.")
     
     response = requests.patch(base_url + f"/expenses/{expense_id}", json=update)
-    print("Status code: ", response.status_code)
-    print("Response: ", response.json())
+    updated = response.json()
+
+    if response.status_code >= 400:
+        print("Error:", updated["detail"])
+        return 
+    
+    print_update(updated["expense"])
 
         
 def replace_expense() -> None:
     replacement_expense = {}
-    cont = True
-    name_l = True
-    amount_l = True 
-    category_l = True 
-    date_l = True 
+    
+    expense_id = get_expense_id()
+    
+    replacement_expense["name"] = get_name()
 
-    while cont:
-        try:
-            print("Please enter the expense id you wish to replace: ", end='')
-            expense_id = int(input().strip())
-            cont = False
-        except ValueError:
-            print("You did not enter a integer, please try again.")
+    replacement_expense["amount"] = get_amount()
 
-    while name_l:
-        print("Please enter a name for the expense: ", end='')
-        name = input().strip()
-        if name:
-            replacement_expense["name"] = name
-            name_l = False
-        else:
-            print("No name entered, please try again.")
+    replacement_expense["category"] = get_category()
 
-    while amount_l:
-        print("Please enter an amount for the expense: ", end='')
-        try:
-            amount = float(input().strip())
-            if amount <=0:
-                raise ValueError
-            replacement_expense["amount"] = amount
-            amount_l = False
-        except ValueError:
-            print("You did not enter a positive number, please try again.")
-        
-    while category_l:
-        print("Please enter a category for the expense: ", end='')
-        category = input().strip()
-        if category:
-            replacement_expense["category"] = category
-            category_l = False
-        else: 
-            print("No category entered, please try again.")
-
-    while date_l:
-        print("Please enter a date for the expense (YYYY-MM-DD): ", end='')
-        try:
-            date_entered = date.fromisoformat(input().strip())
-            date_text = date.isoformat(date_entered)
-            replacement_expense["date"] = date_text
-            date_l = False
-        except ValueError:
-            print("You did not enter a valid date, please try again.")
+    replacement_expense["date"] = get_date()
 
     response = requests.put(base_url + f"/expenses/{expense_id}", json=replacement_expense)
-    print("Status code: ", response.status_code)
-    print("Response: ", response.json())
+    replaced = response.json()
+
+    if response.status_code >= 400:
+        print("Error:", replaced["detail"])
+        return 
+    
+    print_update(replaced["expense"])
 
 
 def delete_expense() -> None:
-    cont = True
 
-    while cont:
-        try:
-            print("Please enter the expense id you wish to delete: ", end='')
-            expense_id = int(input().strip())
-            cont = False
-        except ValueError:
-            print("You did not enter a integer, please try again.")
+    expense_id = get_expense_id()
 
     response = requests.delete(base_url + f"/expenses/{expense_id}")
-    print("Status code: ", response.status_code)
-    print("Response: ", response.json())
+    deleted = response.json()
+
+    if response.status_code >= 400:
+        print("Error:", deleted["detail"])
+        return 
+    
+    print_deleted(deleted["expense"])
+
 
 
 def main() -> None:
@@ -298,7 +254,7 @@ def main() -> None:
             get_all_expenses()
 
         elif choice == 3:
-            get_cat_expenses()
+            search_expenses()
         
         elif choice == 4:
             get_specific_expense()
@@ -317,7 +273,7 @@ def main() -> None:
 
         elif choice == 9:
             cont = False
-            print("done")
+            print("Program closed.")
 
 
 if __name__ == "__main__":

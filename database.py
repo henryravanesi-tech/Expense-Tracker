@@ -27,13 +27,44 @@ def create_table():
     conn.close()
 
 
-def get_all_expenses():
+def search_expenses(name = None, category = None, min_amount = None, max_amount = None, start_date = None, end_date = None):
 
     conn = get_connection()
     cursor = conn.cursor()
 
+    sql = "SELECT * FROM expenses"
+    placeholders = []
+    values = []
+
+    if name is not None:
+        placeholders.append("name = ?")
+        values.append(name)
+        
+    if category is not None:
+        placeholders.append("category = ?")
+        values.append(category)
+    
+    if min_amount is not None:
+        placeholders.append("amount >= ?")
+        values.append(min_amount)
+
+    if max_amount is not None:
+        placeholders.append("amount <= ?")
+        values.append(max_amount)
+    
+    if start_date is not None:
+        placeholders.append("date >= ?")
+        values.append(start_date)
+
+    if end_date is not None:
+        placeholders.append("date <= ?")
+        values.append(end_date)
+
+    if len(placeholders) > 0:
+        sql += " WHERE " + " AND ".join(placeholders)
+    
     cursor.execute(
-    "SELECT * FROM expenses"
+    sql, values
     )
 
     rows = cursor.fetchall()
@@ -59,22 +90,6 @@ def get_expense(expense_id):
         return None
     
     return dict(row)
-
-
-def get_expense_cat(category):
-
-    conn = get_connection()
-    cursor = conn.cursor()
-
-    cursor.execute(
-    "SELECT * FROM expenses WHERE category = ?",
-    (category,)
-    )
-
-    rows = cursor.fetchall()
-    conn.close()
-
-    return [dict(row) for row in rows]
 
 
 def create_expense(name, amount, category, date_entered):

@@ -1,10 +1,11 @@
 # Expense Tracker
-The second version of a personal expense tracker. Built with FastAPI, SQLite, and a terminal client. The API lets users create, view, filter, update, replace, and delete expenses, while SQLite keeps the data saved after the server stops.
+
+The third version of a personal expense tracker. Built with FastAPI, SQLite, and a terminal client. The API lets users create, view, search, update, replace, and delete expenses, while SQLite keeps the data saved after the server stops.
 
 ## Features
 
 - Add new expenses with a name, amount, category, and date
-- View all expenses, or filter them by category
+- View all expenses, or filter them by any combination of fields
 - Look up a single expense by its ID
 - Update one or more fields of an existing expense
 - Fully replace an existing expense
@@ -28,7 +29,7 @@ The second version of a personal expense tracker. Built with FastAPI, SQLite, an
 |---|---|---|
 | GET | `/` | Check that the API is running |
 | GET | `/expenses` | View all expenses |
-| GET | `/expenses?category={category}` | View expenses filtered by category |
+| GET | `/expenses` with optional query parameters | Search expenses by name, category, amount range, and date range |
 | GET | `/expenses/{expense_id}` | View one expense by ID |
 | POST | `/expenses` | Add a new expense |
 | PATCH | `/expenses/{expense_id}` | Update one or more fields of an expense |
@@ -77,16 +78,13 @@ Then follow the on-screen menu to add, view, update, and delete expenses.
 
 ## Notes
 
-This is V2 of the project. Expenses are stored in a SQLite file, so the data is saved even after the server restarts.
+This is V3 of the project. Expenses are stored in a SQLite file, so the data is saved even after the server restarts.
 
-The main goal of V2 was to replace in-memory storage with SQLite, so expenses are actually stored in a local database file and still exist after the server restarts. I also improved input validation so empty inputs, invalid numbers, and incorrectly formatted dates are rejected, and the user is asked to re-enter only the incorrect input.
+In version 3, client output and input validation were improved. A search-by-filter feature was added, improving on the category-only search from the last version. To clean up the file structure, client helper functions were moved into their own file, and the Pydantic models were also moved into their own file.
+
+The main goal of V3 was to improve client output, improve input validation, and add a better search feature that lets users filter by any combination of expense fields. The program now catches empty inputs, wrong data types, and inputs outside of the valid range. It also returns clear messages for backend errors and empty results.
 
 ## Future Improvements
 
-- Add filtering by amount and date
-- Support multiple filters at once, like category, date, and amount range
 - Add summary endpoints for total spending, spending by category, and spending by date range
-- Move Pydantic models into a separate `models.py` file
-- Create helper functions for repeated terminal client input validation
-- Improve terminal output formatting
-- Eventually add a simple frontend for interacting with the API in a browser
+- Add a simple frontend for interacting with the API in a browser
