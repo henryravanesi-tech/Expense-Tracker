@@ -32,15 +32,18 @@ The fourth version of a personal expense tracker. Built with FastAPI, SQLite, an
 ```
 Expense-Tracker/
 ├── backend/
-│   ├── main.py        # API routes
-│   ├── database.py    # SQLite queries
-│   └── models.py      # Pydantic models
+│   ├── main.py
+│   ├── database.py
+│   └── models.py
 ├── frontend/
 │   ├── index.html
 │   ├── app.js
 │   └── style.css
+├── images/
+│   └── screenshot.jpg
 ├── requirements.txt
-└── README.md
+├── README.md
+└── .gitignore
 ```
 
 ## API Routes
