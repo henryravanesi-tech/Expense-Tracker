@@ -15,11 +15,11 @@ def create_table():
 
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS expenses (
-            id INTEGER PRIMARY KEY AUTOINCREMENT, 
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
             amount REAL NOT NULL,
             category TEXT NOT NULL,
-            date TEXT NOT NULL       
+            date TEXT NOT NULL
         )
     """)
 
@@ -37,13 +37,13 @@ def search_expenses(name = None, category = None, min_amount = None, max_amount 
     values = []
 
     if name is not None:
-        placeholders.append("name = ?")
-        values.append(name)
-        
+        placeholders.append("name LIKE ?")
+        values.append(f"%{name}%")
+
     if category is not None:
-        placeholders.append("category = ?")
+        placeholders.append("category = ? COLLATE NOCASE")
         values.append(category)
-    
+
     if min_amount is not None:
         placeholders.append("amount >= ?")
         values.append(min_amount)
@@ -51,7 +51,7 @@ def search_expenses(name = None, category = None, min_amount = None, max_amount 
     if max_amount is not None:
         placeholders.append("amount <= ?")
         values.append(max_amount)
-    
+
     if start_date is not None:
         placeholders.append("date >= ?")
         values.append(start_date)
@@ -62,7 +62,9 @@ def search_expenses(name = None, category = None, min_amount = None, max_amount 
 
     if len(placeholders) > 0:
         sql += " WHERE " + " AND ".join(placeholders)
-    
+
+    sql += " ORDER BY date DESC, id DESC"
+
     cursor.execute(
     sql, values
     )
@@ -79,7 +81,7 @@ def get_expense(expense_id):
     cursor = conn.cursor()
 
     cursor.execute(
-    "SELECT * FROM expenses WHERE id = ?", 
+    "SELECT * FROM expenses WHERE id = ?",
     (expense_id,)
     )
 
@@ -88,7 +90,7 @@ def get_expense(expense_id):
 
     if row is None:
         return None
-    
+
     return dict(row)
 
 
@@ -107,7 +109,7 @@ def create_expense(name, amount, category, date_entered):
     )
 
     new_id = cursor.lastrowid
-    
+
     conn.commit()
     conn.close()
 
@@ -126,7 +128,7 @@ def modify_expense(expense_id, name=None, amount=None, category=None, date_enter
         fields.append("name = ?")
         values.append(name)
 
-    if amount is not None: 
+    if amount is not None:
         fields.append("amount = ?")
         values.append(amount)
 
@@ -142,7 +144,7 @@ def modify_expense(expense_id, name=None, amount=None, category=None, date_enter
     if len(fields) == 0:
         conn.close()
         return False
-    
+
     values.append(expense_id)
 
     sql =  f"UPDATE expenses SET {', '.join(fields)} WHERE id = ?"
@@ -170,7 +172,7 @@ def replace_expense(expense_id, name, amount, category, date_entered):
 
     conn.commit()
     conn.close()
-    
+
     return rows_changed > 0
 
 

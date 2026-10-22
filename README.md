@@ -1,17 +1,18 @@
 # Expense Tracker
 
-The third version of a personal expense tracker. Built with FastAPI, SQLite, and a terminal client. The API lets users create, view, search, update, replace, and delete expenses, while SQLite keeps the data saved after the server stops.
+The fourth version of a personal expense tracker. Built with FastAPI, SQLite, and a simple browser frontend. The API lets users create, view, search, update, replace, and delete expenses, while SQLite keeps the data saved after the server stops. The frontend is plain HTML, CSS, and JavaScript that talks to the API.
 
 ## Features
 
 - Add new expenses with a name, amount, category, and date
-- View all expenses, or filter them by any combination of fields
+- Edit an existing expense from the browser
+- View all expenses, or filter them by name, category, amount range, and date range
+- Name search matches part of a name and ignores upper/lower case, and category matching ignores case
 - Look up a single expense by its ID
-- Update one or more fields of an existing expense
-- Fully replace an existing expense
+- See the total spent and the number of expenses for the current filter
 - Delete an expense
-- Store expenses in a SQLite database
-- Validate empty inputs, positive amounts, and date formatting
+- Store expenses in a SQLite database, newest expense date first
+- Validate empty inputs, positive amounts, date formatting, and ranges (min can't be above max, start can't be after end)
 
 ## Tech Stack
 
@@ -19,9 +20,24 @@ The third version of a personal expense tracker. Built with FastAPI, SQLite, and
 - **FastAPI** – the web framework for the API
 - **Uvicorn** – the server that runs the API
 - **Pydantic** – validates the expense data
-- **Requests** – used by the terminal client to call the API
 - **SQLite** – stores expenses in a local database file
+- **HTML, CSS, JavaScript** – the browser frontend, no frameworks
 
+## Project Structure
+
+```
+Expense-Tracker/
+├── backend/
+│   ├── main.py        # API routes
+│   ├── database.py    # SQLite queries
+│   └── models.py      # Pydantic models
+├── frontend/
+│   ├── index.html
+│   ├── app.js
+│   └── style.css
+├── requirements.txt
+└── README.md
+```
 
 ## API Routes
 
@@ -29,7 +45,8 @@ The third version of a personal expense tracker. Built with FastAPI, SQLite, and
 |---|---|---|
 | GET | `/` | Check that the API is running |
 | GET | `/expenses` | View all expenses |
-| GET | `/expenses` with optional query parameters | Search expenses by name, category, amount range, and date range |
+| GET | `/expenses` with optional query parameters | Search by `name`, `category`, `min_amount`, `max_amount`, `start_date`, and `end_date` |
+| GET | `/expenses/summary` | Total spent and expense count, takes the same filters as `/expenses` |
 | GET | `/expenses/{expense_id}` | View one expense by ID |
 | POST | `/expenses` | Add a new expense |
 | PATCH | `/expenses/{expense_id}` | Update one or more fields of an expense |
@@ -50,7 +67,7 @@ python -m venv .venv
 # Mac/Linux
 source .venv/bin/activate
 
-# Windows 
+# Windows
 .venv\Scripts\activate
 
 pip install -r requirements.txt
@@ -58,33 +75,32 @@ pip install -r requirements.txt
 
 ## Usage
 
-The project has two parts: the API server and the terminal client. Start the server first, then run the client in a second terminal.
+The project has two parts: the API server and the frontend. Each one runs in its own terminal, so start the API first and then the frontend.
 
 **1. Start the API server:**
 
 ```bash
+cd backend
 uvicorn main:app --reload
 ```
 
-The API runs at `http://127.0.0.1:8000`. You can also open `http://127.0.0.1:8000/docs` in your browser to see FastAPI's documentation. The SQLite database file will be created automatically when the API starts.
+The API runs at `http://127.0.0.1:8000`. You can also open `http://127.0.0.1:8000/docs` in your browser to see FastAPI's documentation. The SQLite database file (`expenses.db`) is created automatically in the folder you start the server from, so always start it from `backend`.
 
-**2. Start the terminal client:**
+**2. Start the frontend:**
+
+In a second terminal:
 
 ```bash
-python client_terminal.py
+cd frontend
+python -m http.server 5500 --bind 127.0.0.1
 ```
 
-Then follow the on-screen menu to add, view, update, and delete expenses.
+Then open `http://127.0.0.1:5500/` in your browser. The API only allows requests from `127.0.0.1:5500` and `localhost:5500`, so keep that port. If you use the VS Code Live Server extension instead, it uses the same port.
 
 ## Notes
 
-This is V3 of the project. Expenses are stored in a SQLite file, so the data is saved even after the server restarts.
+This is V4 of the project. Expenses are stored in a SQLite file, so the data is saved even after the server restarts.
 
-In version 3, client output and input validation were improved. A search-by-filter feature was added, improving on the category-only search from the last version. To clean up the file structure, client helper functions were moved into their own file, and the Pydantic models were also moved into their own file.
+In version 4, the terminal client was replaced with a browser frontend. The frontend can add, edit, delete, search, and filter expenses, including by date range, and shows the total for whatever is currently filtered. On the backend, a `/expenses/summary` route was added, name search became a partial case-insensitive match, results are sorted by date, and the amount and date range checks moved to the API so any client gets the same error messages. The project was also split into `backend` and `frontend` folders.
 
-The main goal of V3 was to improve client output, improve input validation, and add a better search feature that lets users filter by any combination of expense fields. The program now catches empty inputs, wrong data types, and inputs outside of the valid range. It also returns clear messages for backend errors and empty results.
-
-## Future Improvements
-
-- Add summary endpoints for total spending, spending by category, and spending by date range
-- Add a simple frontend for interacting with the API in a browser
+The main goal of V4 was to make the tracker usable without the terminal while keeping the frontend small and simple.

@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Expense Tracker</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+
+<body>
+
+    <main class="container">
+
+
+        <!-- top of the page -->
+
+        <header class="header">
+
+            <div>
+                <h1>Expense Tracker</h1>
+
+                <p>
+                    Track and manage your spending.
+                </p>
+            </div>
+
+
+            <button
+                id="add-expense-button"
+                class="primary-button"
+                type="button"
+            >
+                + Add Expense
+            </button>
+
+        </header>
+
+
+
+        <!-- add/edit form -->
+
+        <section
+            id="add-expense-form"
+            class="add-expense-form hidden"
+        >
+
+            <h2 id="form-title">Add Expense</h2>
+
+
+            <div class="form-row">
+
+                <input
+                    id="add-name"
+                    type="text"
+                    placeholder="Name"
+                    required
+                >
+
+
+                <input
+                    id="add-amount"
+                    type="number"
+                    placeholder="Amount"
+                    min="0.01"
+                    step="0.01"
+                    required
+                >
+
+
+                <input
+                    id="add-category"
+                    type="text"
+                    placeholder="Category"
+                    required
+                >
+
+
+                <input
+                    id="add-date"
+                    type="date"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-buttons">
+
+                <button
+                    id="cancel-add-button"
+                    class="secondary-button"
+                    type="button"
+                >
+                    Cancel
+                </button>
+
+
+                <button
+                    id="save-expense-button"
+                    class="primary-button"
+                    type="button"
+                >
+                    Save Expense
+                </button>
+
+            </div>
+
+
+            <p id="add-message"></p>
+
+        </section>
+
+
+
+        <!-- total card -->
+
+        <section class="summary-card">
+
+            <p class="summary-label">
+                Total Spending
+            </p>
+
+
+            <h2 id="total-spending">
+                $0.00
+            </h2>
+
+
+            <p
+                id="expense-count"
+                class="expense-count"
+            >
+                0 expenses
+            </p>
+
+        </section>
+
+
+
+        <!-- search and filters -->
+
+        <section class="filters">
+
+
+            <div class="section-heading">
+
+                <h2>Expenses</h2>
+
+                <p>
+                    View and filter your spending history.
+                </p>
+
+            </div>
+
+
+
+            <!-- find by id -->
+
+            <div class="id-search-row">
+
+                <input
+                    id="search-id"
+                    type="number"
+                    placeholder="Expense ID"
+                    min="1"
+                >
+
+
+                <button
+                    id="search-id-button"
+                    class="secondary-button"
+                    type="button"
+                >
+                    Find ID
+                </button>
+
+
+                <button
+                    id="show-all-button"
+                    class="secondary-button"
+                    type="button"
+                >
+                    Show All
+                </button>
+
+            </div>
+
+            <p id="search-message" role="status"></p>
+
+
+
+            <!-- filter inputs -->
+
+            <div class="filter-row">
+
+
+                <input
+                    id="filter-name"
+                    type="text"
+                    placeholder="Search name"
+                >
+
+
+                <input
+                    id="filter-category"
+                    type="text"
+                    placeholder="Category"
+                >
+
+
+                <input
+                    id="filter-min"
+                    type="number"
+                    placeholder="Min amount"
+                    min="0"
+                >
+
+
+                <input
+                    id="filter-max"
+                    type="number"
+                    placeholder="Max amount"
+                    min="0"
+                >
+
+
+                <div class="date-group">
+
+                    <label class="date-field">
+
+                        From
+
+                        <input
+                            id="filter-start"
+                            type="date"
+                        >
+
+                    </label>
+
+
+                    <label class="date-field">
+
+                        To
+
+                        <input
+                            id="filter-end"
+                            type="date"
+                        >
+
+                    </label>
+
+                </div>
+
+
+                <button
+                    id="filter-button"
+                    class="secondary-button"
+                    type="button"
+                >
+                    Filter
+                </button>
+
+
+            </div>
+
+
+        </section>
+
+
+
+        <!-- the table -->
+
+        <section class="expense-section">
+
+
+            <div class="expense-header">
+
+                <span>ID</span>
+
+                <span>Name</span>
+
+                <span>Category</span>
+
+                <span>Date</span>
+
+                <span>Amount</span>
+
+                <span>Actions</span>
+
+            </div>
+
+
+            <div id="expense-list">
+
+                <!-- rows get added here by app.js -->
+
+            </div>
+
+
+        </section>
+
+
+    </main>
+
+
+    <script src="./app.js"></script>
+
+
+</body>
+
+</html>
