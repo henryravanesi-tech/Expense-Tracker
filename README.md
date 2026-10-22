@@ -2,6 +2,10 @@
 
 The fourth version of a personal expense tracker. Built with FastAPI, SQLite, and a simple browser frontend. The API lets users create, view, search, update, replace, and delete expenses, while SQLite keeps the data saved after the server stops. The frontend is plain HTML, CSS, and JavaScript that talks to the API.
 
+## Screenshot
+
+![Expense Tracker Dashboard](images/screenshot.jpg)
+
 ## Features
 
 - Add new expenses with a name, amount, category, and date
